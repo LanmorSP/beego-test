@@ -1,0 +1,44 @@
+version: "3.7"
+networks:
+  db:
+
+services:
+  app:
+    # image: golang:alpine3.15
+    build: .
+    container_name: app
+    volumes:
+      - ./:/app
+    ports:
+      - "8081:8080"
+    # keep container is running
+    tty: true
+    networks:
+      - db
+    
+  postgres-db:
+    container_name: app.postgres-db
+    image: postgres:12.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test1234
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - db
+
+  phppgadmin:
+    container_name: app.db.admin
+    image: bitnami/phppgadmin
+    ports:
+      - "8082:8080"
+    environment:
+      # - DATABASE_ENABLE_EXTRA_LOGIN_SECURITY=value
+      - DATABASE_HOST=postgres-db
+      - DATABASE_PORT_NUMBER=5432
+      - DATABASE_SSL_MODE=disable
+      # - PHP_UPLOAD_MAX_FILESIZE=300M
+    networks:
+      - db
+
