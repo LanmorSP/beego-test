@@ -6,7 +6,7 @@ services:
   app:
     # image: golang:alpine3.15
     build: .
-    container_name: app
+    container_name: app.bee
     volumes:
       - ./:/app
     ports:
