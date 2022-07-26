@@ -22,7 +22,7 @@ func (m *UserTable_20220726_073906) Up() {
 	// use m.SQL("CREATE TABLE ...") to make schema update)
 	m.SQL(`
 	CREATE TABLE public.user (
-		id integer NOT NULL,
+		id serial NOT NULL PRIMARY KEY,
 		username character(255) NOT NULL,
 		profile character(255) NOT NULL
 	);`)
