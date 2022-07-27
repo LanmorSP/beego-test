@@ -16,4 +16,5 @@ bale.go
 *.go~
 *.tmp
 
+app
 routers/comm*

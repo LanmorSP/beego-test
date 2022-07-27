@@ -2,85 +2,96 @@ package models
 
 import (
 	"errors"
-	"strconv"
-	"time"
-)
 
-var (
-	UserList map[string]*User
+	"github.com/beego/beego/v2/client/orm"
 )
-
-func init() {
-	UserList = make(map[string]*User)
-	u := User{"user_11111", "astaxie", "11111", Profile{"male", 20, "Singapore", "astaxie@gmail.com"}}
-	UserList["user_11111"] = &u
-}
 
 type User struct {
-	Id       string
+	Id       int
 	Username string
-	Password string
-	Profile  Profile
+	Profile  string
 }
 
-type Profile struct {
-	Gender  string
-	Age     int
-	Address string
-	Email   string
+func init() {
+	orm.RegisterModel(new(User))
 }
 
-func AddUser(u User) string {
-	u.Id = "user_" + strconv.FormatInt(time.Now().UnixNano(), 10)
-	UserList[u.Id] = &u
-	return u.Id
-}
-
-func GetUser(uid string) (u *User, err error) {
-	if u, ok := UserList[uid]; ok {
-		return u, nil
+func AddUser(u User) (i int64) {
+	o := orm.NewOrm()
+	var user User
+	if u.Username != "" {
+		user.Username = u.Username
 	}
-	return nil, errors.New("User not exists")
+	if u.Profile != "" {
+		user.Profile = u.Profile
+	}
+	id, err := o.Insert(&user)
+
+	if err == nil {
+		return id
+	}
+	return 0
 }
 
-func GetAllUsers() map[string]*User {
-	return UserList
+func GetUser(id int) (u *User, err error) {
+	o := orm.NewOrm()
+	var user User
+	user = User{Id: id}
+
+	err = o.Read(&user)
+
+	if err == orm.ErrNoRows {
+		return nil, errors.New("User not exists")
+	} else if err == orm.ErrMissPK {
+		return nil, errors.New("User not exists")
+	} else {
+		return &user, nil
+	}
 }
 
-func UpdateUser(uid string, uu *User) (a *User, err error) {
-	if u, ok := UserList[uid]; ok {
+func GetAllUsers() (uu []*User, err error) {
+	o := orm.NewOrm()
+	var users []*User
+	qs := o.QueryTable("user")
+	num, _ := qs.All(&users)
+	if num < 1 {
+		return []*User{}, errors.New("User not exists")
+	}
+	return users, nil
+}
+
+func UpdateUser(id int, uu *User) (a *User, err error) {
+	o := orm.NewOrm()
+	var user User
+	user = User{Id: id}
+	err = o.Read(&user)
+
+	if err == orm.ErrNoRows {
+		return nil, errors.New("User not exists")
+	} else if err == orm.ErrMissPK {
+		return nil, errors.New("User not exists")
+	} else {
 		if uu.Username != "" {
-			u.Username = uu.Username
+			user.Username = uu.Username
 		}
-		if uu.Password != "" {
-			u.Password = uu.Password
+		if uu.Profile != "" {
+			user.Profile = uu.Profile
 		}
-		if uu.Profile.Age != 0 {
-			u.Profile.Age = uu.Profile.Age
-		}
-		if uu.Profile.Address != "" {
-			u.Profile.Address = uu.Profile.Address
-		}
-		if uu.Profile.Gender != "" {
-			u.Profile.Gender = uu.Profile.Gender
-		}
-		if uu.Profile.Email != "" {
-			u.Profile.Email = uu.Profile.Email
-		}
-		return u, nil
+		o.Update(&user)
+		return &user, nil
 	}
-	return nil, errors.New("User Not Exist")
 }
 
-func Login(username, password string) bool {
-	for _, u := range UserList {
-		if u.Username == username && u.Password == password {
-			return true
-		}
-	}
-	return false
-}
+func DeleteUser(id int) (s string, err error) {
+	o := orm.NewOrm()
+	var user User
+	user = User{Id: id}
+	err = o.Read(&user)
 
-func DeleteUser(uid string) {
-	delete(UserList, uid)
+	if err == orm.ErrNoRows || err == orm.ErrMissPK {
+		return "", errors.New("User not exists")
+	} else {
+		o.Delete(&user)
+		return "ok", nil
+	}
 }

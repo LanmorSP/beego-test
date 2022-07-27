@@ -23,8 +23,8 @@ func (m *UserTable_20220726_073906) Up() {
 	m.SQL(`
 	CREATE TABLE public.user (
 		id serial NOT NULL PRIMARY KEY,
-		username character(255) NOT NULL,
-		profile character(255) NOT NULL
+		username VARCHAR(255) NOT NULL,
+		profile VARCHAR(255) NOT NULL
 	);`)
 }
 

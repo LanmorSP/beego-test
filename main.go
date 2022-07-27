@@ -12,8 +12,9 @@ func main() {
 	if beego.BConfig.RunMode == "dev" {
 		beego.BConfig.WebConfig.DirectoryIndex = true
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+		orm.Debug = true
 	}
-
+	beego.BConfig.CopyRequestBody = true
 	orm.RegisterDataBase(
 		"default",
 		"postgres",
