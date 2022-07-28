@@ -26,5 +26,15 @@ func init() {
 			),
 		),
 	)
+
+	nsAuth := beego.NewNamespace("/auth",
+		beego.NSNamespace("/google",
+			beego.NSInclude(
+				&controllers.AuthGoogleController{},
+			),
+		),
+	)
+
 	beego.AddNamespace(ns)
+	beego.AddNamespace(nsAuth)
 }

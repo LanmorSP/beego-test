@@ -18,7 +18,7 @@ func main() {
 	orm.RegisterDataBase(
 		"default",
 		"postgres",
-		"user=test password=test1234 dbname=test host=postgres-db port=5432 sslmode=disable",
+		"user=test password=test1234 dbname=test host=localhost port=5432 sslmode=disable",
 	)
 	beego.Run(":8080")
 }
