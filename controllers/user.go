@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"test-api/models"
 
+	"github.com/beego/beego/v2/server/web/pagination"
+
 	beego "github.com/beego/beego/v2/server/web"
 )
 
@@ -31,16 +33,29 @@ func (u *UserController) Post() {
 // @Description get all Users
 // @Success 200 {object} models.User
 // @router / [get]
-func (u *UserController) GetAll() {
-	users, err := models.GetAllUsers()
-	if err != nil {
-		u.Data["json"] = err.Error()
-		u.Ctx.Output.Status = 404
-	} else {
-		u.Data["json"] = users
+func (c *UserController) GetAll() {
+	//initial result
+	rs := make(map[string]interface{})
+
+	//count total
+	totalCnt, _ := models.GetAllUsersCount()
+
+	//pagination generator
+	per := 3
+	pgr := pagination.SetPaginator(c.Ctx, per, totalCnt)
+
+	users, _ := models.GetAllUsers(pgr.Offset(), per)
+	rs["data"] = users
+	rs["meta"] = map[string]interface{}{
+		"currentPage": pgr.Page(),
+		"perPage":     pgr.PerPageNums,
+		"totalCount":  pgr.Nums(),
+		"totalPage":   pgr.PageNums(),
 	}
 
-	u.ServeJSON()
+	c.Data["json"] = rs
+
+	c.ServeJSON()
 }
 
 // @Title Get
@@ -49,18 +64,18 @@ func (u *UserController) GetAll() {
 // @Success 200 {object} models.User
 // @Failure 403 :uid is empty
 // @router /:uid [get]
-func (u *UserController) Get() {
-	id, err := u.GetInt(":uid")
+func (c *UserController) Get() {
+	id, err := c.GetInt(":uid")
 	if err == nil {
-		user, err := models.GetUser(id)
+		users, err := models.GetUser(id)
 		if err != nil {
-			u.Data["json"] = err.Error()
-			u.Ctx.Output.Status = 404
+			c.Data["json"] = err.Error()
+			c.Ctx.Output.Status = 404
 		} else {
-			u.Data["json"] = user
+			c.Data["json"] = users
 		}
 	}
-	u.ServeJSON()
+	c.ServeJSON()
 }
 
 // @Title Update

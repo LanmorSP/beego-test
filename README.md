@@ -15,7 +15,7 @@ docker exec -it app.bee sh
 3. database migrations 
 you are in container app.bee,you can run the migrate command.
 ```
-bee migrate -driver=postgres -conn="postgres://test:test1234@postgres-db:5432/test?sslmode=disable"
+bee migrate -driver=postgres -conn="postgres://test:test1234@localhost:5432/test?sslmode=disable"
 ```
 
 4. launch the server

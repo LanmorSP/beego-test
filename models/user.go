@@ -49,15 +49,24 @@ func GetUser(id int) (u *User, err error) {
 	}
 }
 
-func GetAllUsers() (uu []*User, err error) {
+func GetAllUsers(offset int, limit int) (uu []*User, err error) {
 	o := orm.NewOrm()
 	var users []*User
 	qs := o.QueryTable("user")
-	num, _ := qs.All(&users)
+	//set limit
+	num, _ := qs.Limit(limit, offset).All(&users)
 	if num < 1 {
 		return []*User{}, errors.New("User not exists")
 	}
 	return users, nil
+}
+
+func GetAllUsersCount() (c int64, err error) {
+	o := orm.NewOrm()
+
+	cnt, err := o.QueryTable("user").Count()
+
+	return cnt, err
 }
 
 func UpdateUser(id int, uu *User) (a *User, err error) {
