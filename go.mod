@@ -11,8 +11,10 @@ require (
 
 require (
 	cloud.google.com/go v0.65.0 // indirect
+	github.com/elastic/go-elasticsearch/v6 v6.8.10 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/opensearch-project/opensearch-go v1.1.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect

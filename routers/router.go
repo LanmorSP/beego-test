@@ -35,6 +35,17 @@ func init() {
 		),
 	)
 
-	beego.AddNamespace(ns)
-	beego.AddNamespace(nsAuth)
+	nsTest := beego.NewNamespace("/test",
+		beego.NSNamespace("/log",
+			beego.NSInclude(
+				&controllers.TestLogController{},
+			),
+		),
+	)
+
+	beego.AddNamespace(
+		ns,
+		nsAuth,
+		nsTest,
+	)
 }

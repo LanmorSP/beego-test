@@ -3,19 +3,19 @@ networks:
   db:
 
 services:
-  app:
-    # image: golang:alpine3.15
-    build: .
-    container_name: app.bee
-    volumes:
-      - ./:/app
-    ports:
-      - "8081:8080"
-      # - "8083:12450"
-    # keep container is running
-    tty: true
-    networks:
-      - db
+  # app:
+  #   # image: golang:alpine3.15
+  #   build: .
+  #   container_name: app.bee
+  #   volumes:
+  #     - ./:/app
+  #   ports:
+  #     - "8081:8080"
+  #     # - "8083:12450"
+  #   # keep container is running
+  #   tty: true
+  #   networks:
+  #     - db
     
   postgres-db:
     container_name: app.postgres-db
