@@ -17,4 +17,5 @@ bale.go
 *.tmp
 
 app
+test-api
 routers/comm*
