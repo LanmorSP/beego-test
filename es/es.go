@@ -15,7 +15,7 @@ import (
 	opensearchapi "github.com/opensearch-project/opensearch-go/opensearchapi"
 )
 
-const IndexName = "go-test-index1"
+var levelNames = [...]string{"emergency", "alert", "critical", "error", "warning", "notice", "info", "debug"}
 
 // NewES returns a LoggerInterface
 func NewOpensarch() logs.Logger {
@@ -41,10 +41,12 @@ type esLogger struct {
 }
 
 func (el *esLogger) Format(lm *logs.LogMsg) *bytes.Buffer {
-	msg := lm.OldStyleFormat()
 	m, b := LogDocument{
 		Timestamp: lm.When.Format(time.RFC3339),
-		Msg:       msg,
+		Msg:       lm.Msg,
+		Level:     levelNames[lm.Level],
+		Line:      lm.LineNumber,
+		Filename:  lm.FilePath,
 	}, new(bytes.Buffer)
 
 	json.NewEncoder(b).Encode(m)
@@ -123,4 +125,7 @@ func (el *esLogger) Flush() {
 type LogDocument struct {
 	Timestamp string `json:"timestamp"`
 	Msg       string `json:"msg"`
+	Level     string `json:"level"`
+	Filename  string `json:"filename"`
+	Line      int    `json:"line"`
 }
