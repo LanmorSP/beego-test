@@ -41,9 +41,14 @@ type esLogger struct {
 }
 
 func (el *esLogger) Format(lm *logs.LogMsg) *bytes.Buffer {
+	msg := lm.Msg
+
+	if len(lm.Args) > 0 {
+		msg = fmt.Sprintf(lm.Msg, lm.Args...)
+	}
 	m, b := LogDocument{
 		Timestamp: lm.When.Format(time.RFC3339),
-		Msg:       lm.Msg,
+		Msg:       msg,
 		Level:     levelNames[lm.Level],
 		Line:      lm.LineNumber,
 		Filename:  lm.FilePath,

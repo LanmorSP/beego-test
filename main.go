@@ -22,10 +22,8 @@ func main() {
 		"postgres",
 		"user=test password=test1234 dbname=test host=localhost port=5432 sslmode=disable",
 	)
-	logs.EnableFuncCallDepth(true)
-	logs.SetLogFuncCallDepth(3)
 	logs.Register("opensearch", opensearch.NewOpensarch)
-	logs.SetLogger("opensearch", `{"dsn":"https://localhost:9200"}`)
+	logs.SetLogger("opensearch", `{"dsn":"https://localhost:9200","index":"go-test-index1"}`)
 
 	beego.Run(":8080")
 }
