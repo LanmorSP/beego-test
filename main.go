@@ -1,9 +1,8 @@
 package main
 
 import (
+	opensearch "test-api/es"
 	_ "test-api/routers"
-
-	_ "test-api/es"
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
@@ -23,9 +22,10 @@ func main() {
 		"postgres",
 		"user=test password=test1234 dbname=test host=localhost port=5432 sslmode=disable",
 	)
-
 	logs.EnableFuncCallDepth(true)
 	logs.SetLogFuncCallDepth(3)
+	logs.Register("opensearch", opensearch.NewOpensarch)
+	logs.SetLogger("opensearch", `{"dsn":"https://localhost:9200"}`)
 
 	beego.Run(":8080")
 }

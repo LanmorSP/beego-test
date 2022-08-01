@@ -1,15 +1,13 @@
 package es
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
@@ -20,7 +18,7 @@ import (
 const IndexName = "go-test-index1"
 
 // NewES returns a LoggerInterface
-func NewES() logs.Logger {
+func NewOpensarch() logs.Logger {
 	cw := &esLogger{
 		Level: logs.LevelDebug,
 	}
@@ -37,21 +35,21 @@ type esLogger struct {
 	*opensearch.Client
 	DSN       string `json:"dsn"`
 	Level     int    `json:"level"`
+	IndexName string `json:"index"`
 	formatter logs.LogFormatter
 	Formatter string `json:"formatter"`
 }
 
-func (el *esLogger) Format(lm *logs.LogMsg) string {
+func (el *esLogger) Format(lm *logs.LogMsg) *bytes.Buffer {
 	msg := lm.OldStyleFormat()
-	idx := LogDocument{
+	m, b := LogDocument{
 		Timestamp: lm.When.Format(time.RFC3339),
 		Msg:       msg,
-	}
-	body, err := json.Marshal(idx)
-	if err != nil {
-		return msg
-	}
-	return string(body)
+	}, new(bytes.Buffer)
+
+	json.NewEncoder(b).Encode(m)
+
+	return b
 }
 
 func (el *esLogger) SetFormatter(f logs.LogFormatter) {
@@ -64,12 +62,9 @@ func (el *esLogger) Init(config string) error {
 	if err != nil {
 		return err
 	}
+
 	if el.DSN == "" {
 		return errors.New("empty dsn")
-	} else if u, err := url.Parse(el.DSN); err != nil {
-		return err
-	} else if u.Path == "" {
-		return errors.New("missing prefix")
 	} else {
 		conn, err := opensearch.NewClient(opensearch.Config{
 			Transport: &http.Transport{
@@ -94,18 +89,25 @@ func (el *esLogger) Init(config string) error {
 	return nil
 }
 
+func (el *esLogger) getIndexName(lm *logs.LogMsg) string {
+	if el.IndexName != "" {
+		return el.IndexName
+	} else {
+		return fmt.Sprintf("backend_api_log_%d%02d%02d", lm.When.Year(), lm.When.Month(), lm.When.Day())
+	}
+}
+
 // WriteMsg writes the msg and level into es
 func (el *esLogger) WriteMsg(lm *logs.LogMsg) error {
 	if lm.Level > el.Level {
 		return nil
 	}
-	log.Println("msssg")
-	msg := el.formatter.Format(lm)
 
 	req := opensearchapi.IndexRequest{
-		Index: IndexName,
-		Body:  strings.NewReader(msg),
+		Index: el.getIndexName(lm),
+		Body:  el.Format(lm),
 	}
+
 	_, err := req.Do(context.Background(), el.Client)
 	return err
 }
@@ -121,8 +123,4 @@ func (el *esLogger) Flush() {
 type LogDocument struct {
 	Timestamp string `json:"timestamp"`
 	Msg       string `json:"msg"`
-}
-
-func init() {
-	logs.Register(logs.AdapterEs, NewES)
 }
